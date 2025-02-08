@@ -1,0 +1,30 @@
+volumes:
+  postgres-db: 
+
+services:
+    api:
+        image: slimasziom/fastapi
+        depends_on:
+          - postgres
+        ports:
+          - 80:8000
+        # command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+        # env_file:
+        #     - ./.env
+        environment:
+          - DB_HOST=${DB_HOSTNAME}
+          - DB_PORT=${DB_PORT}
+          - DB_PWD=${DB_PWD}
+          - DB_NAME=${DB_NAME}
+          - DB_USERNAME=${DB_USERNAME}
+          - SECRET_KEY=${SECRET_KEY}
+          - ALGORITHM=${ALGORITHM}
+          - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+    postgres:
+      image: postgres
+      environment:
+        - POSTGRES_PASSWORD=${DB_PWD}
+        - POSTGRES_DB=${DB_NAME}
+      volumes:
+        - postgres-db:/var/lib/postgresql/14/main
+ 
