@@ -10,8 +10,21 @@ on:
   pull_request:
     branches: ["devel", "master"]
 
+# Accessible to all jobs
+# env:
+#   DATABASE_HOSTNAME: localhost
+
 jobs:
   job1:
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_PWD: postgres
+      DB_NAME: fastapi
+      DB_USERNAME: postgres
+      SECRET_KEY: a066e136d8ad1f8abada99bc47228273ca4b0f01bb699540fa6326b57110dc1a
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo
