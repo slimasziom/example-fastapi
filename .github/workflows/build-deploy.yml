@@ -19,21 +19,21 @@ jobs:
     environment:
       name: testing
     env:
-      DB_HOST: ${{secrets.DB_HOST}}
-      DB_PORT: ${{secrets.DB_PORT}}
-      DB_PWD: ${{secrets.DB_PWD}}
-      DB_NAME: ${{secrets.DB_NAME}}
-      DB_USERNAME: ${{secrets.DB_USERNAME}}
-      SECRET_KEY: ${{secrets.SECRET_KEY}}
-      ALGORITHM: ${{secrets.ALGORITHM}}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_PWD: ${{ secrets.DB_PWD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ALGORITHM: ${{ secrets.ALGORITHM }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
 
     services:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: ${{secrets.DB_PWD}}
-          POSTGRES_DB: ${{secrets.DB_NAME}}_test
+          POSTGRES_PASSWORD: ${{ secrets.DB_PWD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}_test
         ports:
           - 5432:5432
         options: >-
@@ -41,7 +41,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-          
+
     runs-on: ubuntu-latest
     steps:
       - name: pulling git repo
@@ -59,4 +59,31 @@ jobs:
       - name: test with pytest
         run: |
           pip install pytest
-          pytest -v -s  
+          pytest -v -s
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      
+      - name: Set up docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+
