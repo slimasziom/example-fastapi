@@ -18,3 +18,12 @@ jobs:
         uses: actions/checkout@v2
       - name: Say hi to kris
         run: echo "Hi Kris!"
+      - name: Install python version 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+        
