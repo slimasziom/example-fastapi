@@ -109,7 +109,7 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.PROD_USERNAME }}
           password: ${{ secrets.PROD_PASSWORD }}
-          script:: |
+          script: |
             cd app/src
             git pull
             sudo systemctl restart api
